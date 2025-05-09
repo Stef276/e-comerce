@@ -6,6 +6,7 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 const Checkout = () => {
   const { cart, clearCart, totalPrice } = useContext(CartContext);
   const [orderId, setOrderId] = useState('');
+  const [orderData, setOrderData] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -32,9 +33,9 @@ const Checkout = () => {
       },
       items: cart.map(item => ({
         id: item.id,
-        title: item.title || 'Producto sin título',
-        price: item.price || 0,
-        quantity: item.quantity || 1
+        nombre: item.nombre || 'Producto sin nombre',
+        precio: item.precio || 0,
+        cantidad: item.cantidad || 1
       })),
       total: totalPrice() || 0,
       date: serverTimestamp()
@@ -43,18 +44,28 @@ const Checkout = () => {
     try {
       const docRef = await addDoc(collection(db, 'orders'), order);
       setOrderId(docRef.id);
-      clearCart(); // Vacía el carrito después de generar la orden
+      setOrderData(order); // Guardamos el detalle de la orden
+      clearCart();
     } catch (error) {
       console.error('Error al generar la orden:', error);
       alert('Hubo un error al generar la orden. Verificá la consola.');
     }
   };
 
-  if (orderId) {
+  if (orderId && orderData) {
     return (
       <div>
         <h2>¡Gracias por tu compra!</h2>
-        <p>Tu ID de orden es: <strong>{orderId}</strong></p>
+        <p>Tu número de orden es: <strong>{orderId}</strong></p>
+        <h3>Detalle de la compra:</h3>
+        <ul>
+          {orderData.items.map((item) => (
+            <li key={item.id}>
+              {item.nombre} - {item.cantidad} x ${item.precio} = ${item.cantidad * item.precio}
+            </li>
+          ))}
+        </ul>
+        <p><strong>Total:</strong> ${orderData.total}</p>
       </div>
     );
   }

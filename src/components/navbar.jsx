@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import CartWidget from './CartWidget';
+import CartWidget from './cartwidget';
 import { NavLink, Link } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
 import './navbar.css';
